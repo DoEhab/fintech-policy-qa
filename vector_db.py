@@ -13,7 +13,15 @@ client = QdrantClient(path="./qdrant_data")
 # Dynamically name the collection based on the embedding model!
 USE_LOCAL = os.getenv("USE_LOCAL_EMBEDDINGS", "false").lower() == "true"
 COLLECTION_NAME = "fintech_pci_local" if USE_LOCAL else "fintech_pci_cohere"
-DIMENSION = 384 if USE_LOCAL else 1024
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
+MODEL_DIMENSIONS = {
+    "nomic-ai/nomic-embed-text-v1.5": 768,
+    "BAAI/bge-small-en-v1.5": 384,
+    "all-MiniLM-L6-v2": 384,
+    "embed-english-v3.0": 1024,       # Cohere
+    "embed-multilingual-v3.0": 1024   # Cohere
+}
+DIMENSION = MODEL_DIMENSIONS.get(EMBEDDING_MODEL, 768)
 
 # ... (keep your setup_qdrant_collection and upload_to_qdrant functions exactly the same) ...
 def setup_qdrant_collection():
