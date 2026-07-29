@@ -1,0 +1,28 @@
+# Ignore a specific file
+.env
+debug_db.py
+
+# Ignore an entire folder (always add a trailing slash)
+venv/
+env/
+qdrant_data/
+__pycache__/
+
+# Ignore all files matching an extension
+*.log
+*.tmp
+*.pyc
+*.pyo
+*.pyd
+.Python
+.DS_Store
+
+# Hugging Face / Model downloads (just in case)
+*.safetensors
+*.bin
+models/
+.huggingface/
+
+# OS files
+.DS_Store
+Thumbs.db
