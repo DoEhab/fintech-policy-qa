@@ -1,33 +1,32 @@
-# check_db.py
+# check_db_health.py
 from qdrant_client import QdrantClient
+from collections import Counter
 
-# 1. Connect to the local database folder
 client = QdrantClient(path="./qdrant_data")
-COLLECTION_NAME = "fintech_pci_docs"
 
-print(f"🔍 Inspecting collection: {COLLECTION_NAME}\n")
+print("🔍 Scanning database health...\n")
 
-# 2. Get high-level stats
-info = client.get_collection(COLLECTION_NAME)
-
-# FIX: Changed vectors_count to points_count for newer Qdrant versions
-print(f"📊 Total chunks (points) stored: {info.points_count}\n")
-
-# 3. Retrieve a sample of the actual data
+# Get a large sample of records to count sources
 records, next_offset = client.scroll(
-    collection_name=COLLECTION_NAME,
-    limit=3,               # Grab 3 chunks to verify
-    with_payload=True,     # YES: We want to see the text and metadata
-    with_vectors=False     # NO: Hide the 1024 numbers, we just want the text
+    collection_name="fintech_pci_local",
+    limit=10000, # Grab up to 10,000 chunks
+    with_payload=["source"],
+    with_vectors=False
 )
 
-print("📄 Sample Data Retrieved from Database:")
-print("=" * 60)
+print(f"📊 Total chunks actually in database: {len(records)}\n")
+
+# Count chunks per document
+source_counts = Counter()
 for record in records:
-    print(f"🆔 Point ID: {record.id}")
-    print(f"📁 Source: {record.payload.get('source')}")
-    
-    # Print the first 200 characters of the text
-    text_snippet = record.payload.get('text', '')
-    print(f"📝 Text: {text_snippet[:200]}...\n")
-    print("-" * 60)
+    source = record.payload.get("source", "Unknown")
+    source_counts[source] += 1
+
+print("📂 Chunks per document:")
+print("-" * 80)
+for source, count in sorted(source_counts.items(), key=lambda x: x[1], reverse=True):
+    print(f"  {count:5d} chunks | {source}")
+print("-" * 80)
+
+if len(source_counts) < 5:
+    print("\n⚠️ WARNING: Very few documents made it into the database!")
