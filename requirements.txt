@@ -1,0 +1,5 @@
+   streamlit>=1.31.0
+   cohere>=4.46
+   qdrant-client>=1.7.0
+   sentence-transformers>=2.3.1
+   python-dotenv>=1.0.0
