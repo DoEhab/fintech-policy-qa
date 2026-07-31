@@ -26,10 +26,24 @@ if USE_LOCAL:
 else:
     query_model = None
 
-qdrant = QdrantClient(path="./qdrant_data")
+
 co = cohere.Client(api_key=os.getenv("COHERE_API_KEY"))
 
 CHAT_MODEL = "command-a-03-2025" 
+
+QDRANT_URL = os.getenv("QDRANT_URL")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+
+if QDRANT_URL and QDRANT_API_KEY:
+    qdrant = QdrantClient(
+        url=QDRANT_URL,
+        api_key=QDRANT_API_KEY
+    )
+    logging.info("Connected to Qdrant Cloud")
+else:
+    # Fallback to local for development
+    qdrant = QdrantClient(path="./qdrant_data")
+    logging.info("Connected to local Qdrant")
 
 def ask_rag_question(user_query: str) -> dict:
     """
